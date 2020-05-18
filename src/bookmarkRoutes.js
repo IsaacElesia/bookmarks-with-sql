@@ -9,7 +9,7 @@ const bodyParser = express.json();
 bookmarkRouter
 	.route('/')
 	.get((req, res) => {
-		res.status(201).json(bookList);
+		res.status(200).json(bookList);
 	})
 	.post(bodyParser, (req, res) => {
 		const { Title, Year = null, Author } = req.body;
@@ -50,13 +50,13 @@ bookmarkRouter
 			return res.status(404).send('Could not found the book');
 		}
 
-		res.status(201).json(book);
+		res.status(200).json(book);
 	})
 	.delete((req, res) => {
 		const id = req.params.id;
 
-		const book = bookList.find((book) => {
-			return id === book.id;
+		const book = bookList.find((item) => {
+			return id === item.id;
 		});
 
 		if (!book) {
@@ -66,7 +66,7 @@ bookmarkRouter
 
 		if (book) {
 			bookList = bookList.filter((item) => {
-				item.id !== book.id;
+				return item.id !== book.id;
 			});
 			return res.status(200).send('deleted');
 		}

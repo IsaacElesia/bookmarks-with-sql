@@ -3,7 +3,7 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
-const { NODE_ENV } = require('./config');
+const { NODE_ENV, API_TOKEN } = require('./config');
 const app = express();
 const bookmarkRouter = require('./bookmarkRoutes');
 const morganOption = NODE_ENV === 'production' ? 'tiny' : 'common';
@@ -12,6 +12,23 @@ const morganOption = NODE_ENV === 'production' ? 'tiny' : 'common';
 app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
+
+app.use(function requireAuth(req, res, next) {
+	const authValue = req.get('Authorization') || ' ';
+
+	//verify bearer
+	if (!authValue.toLowerCase().startsWith('bearer')) {
+		return res.status(400).json({ error: 'Missing bearer token' });
+	}
+
+	const token = authValue.split(' ')[1];
+
+	if (token !== API_TOKEN) {
+		return res.status(401).json({ error: 'Invalid token' });
+	}
+
+	next();
+});
 
 //Routes
 app.use('/bookmarks', bookmarkRouter);
